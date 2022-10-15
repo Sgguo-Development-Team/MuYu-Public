@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  .content
+    p.emoji-text :(
+    p.tip
+      | Your Website ran into a problem and needs to restart.
+    br
+    | Error Handler: #{error.message}
+    br
+    br
+    img.image(src='/templates/give-me-money-laugh.bmp' alt='QRCode')
+    .stacks-container
+      pre.stacks.
+        #{error.stack}
