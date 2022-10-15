@@ -47,7 +47,6 @@ typings/
 # Builds
 
 *.js
-*.json
 
 # TypeScript cache
 *.tsbuildinfo
