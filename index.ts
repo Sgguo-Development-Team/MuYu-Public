@@ -27,6 +27,7 @@ app.use((req: any, res: any, next: any) => {
 });
 
 // 渲染引擎 - 静态资源
+
 app.use("/templates", express.static(path.join(__dirname, "Views")));
 app.use("/", express.static(path.join(__dirname, "Frontend")));
 // 开始部署 Routers

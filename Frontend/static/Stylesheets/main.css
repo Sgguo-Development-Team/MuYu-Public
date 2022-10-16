@@ -1,4 +1,3 @@
 @charset "UTF-8";
 /* 因为前端和后端是由不同解析器处理的，所以这里要遵循浏览器的处理逻辑 */
-@import url(./bootstrap.min.css);
-
+@import url(./bootstrap/bootstrap.min.css);
