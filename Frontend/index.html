@@ -2,7 +2,7 @@
 <html lang="zh">
   <head>
     <meta charset="utf-8" />
-    <title>电子木鱼 - API 服务</title>
+    <title>电子木鱼</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="build" content="MuYu v0.0.1" />
     <meta name="theme-color" content="#1e2327" />
@@ -12,11 +12,26 @@
       crossorigin="anonymous"
       media="all"
       rel="stylesheet"
-      href="/templates/stylesheet.css"
+      href="./static/Stylesheets/main.css"
     />
   </head>
   <body>
-    <h2>电子木鱼 - API 服务</h2>
-    <p>电子木鱼 Project &amp; Powered by Sgguo-Development-Team</p>
+    <div class="GongDe-Container p-4">
+      <div class="AllServer">
+        全服功德：<span id="AllServer-GongDe">Loading...</span>
+      </div>
+      <div class="AllClick">
+        全部敲击：<span id="AllClick-GongDe">Loading...</span>
+      </div>
+      <div class="TodayClick">
+        今日敲击：<span id="TodayClick-GongDe"> Loading... </span>
+      </div>
+    </div>
+    <div class="MuYu-Container">
+      <img src="./static/Images/muyu.svg" alt="MuYu" class="MuYu-Image" />
+    </div>
+    <script src="./static/Scripts/main.js" charset="utf-8"></script>
+    <!-- 介于浏览器不识别 Packages，手动引入 jQuery -->
+    <script src="./static/Scripts/jquery.min.js" charset="utf-8"></script>
   </body>
 </html>
