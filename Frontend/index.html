@@ -17,25 +17,29 @@
   </head>
   <body>
     <div id="app">
-      <div class="GongDe-Container p-3">
-        <div class="GongDe">
+      <div class="Guna-Container p-3">
+        <div class="Guna">
           <div class="AllServer">
-            全服功德：<span id="AllServer-GongDe">Loading...</span>
+            全服功德：<span id="AllServer-Guna">Loading...</span>
           </div>
           <div class="AllClick">
-            全部敲击：<span id="AllClick-GongDe">Loading...</span>
+            全部敲击：<span id="AllClick-Guna">Loading...</span>
           </div>
           <div class="TodayClick">
-            今日敲击：<span id="TodayClick-GongDe"> Loading... </span>
+            今日敲击：<span id="TodayClick-Guna"> Loading... </span>
           </div>
         </div>
       </div>
     </div>
-    <div class="MuYu-Container pt-5">
-      <img src="./static/Images/muyu.jpg" alt="MuYu" class="MuYu-Image img-fluid" />
+    <div class="MuYu-Container pt-5" id="muyu">
+      <img
+        src="./static/Images/muyu.jpg"
+        alt="MuYu"
+        class="MuYu-Image img-fluid"
+      />
     </div>
-    <script src="./static/Scripts/main.js" charset="utf-8"></script>
-    <!-- 介于浏览器不识别 Packages，手动引入 jQuery -->
+    <!-- 我总不可能 CJS Module 和 客户端环境混用吧-->
     <script src="./static/Scripts/jquery.min.js" charset="utf-8"></script>
+    <script src="./static/Scripts/main.js" charset="utf-8"></script>
   </body>
 </html>

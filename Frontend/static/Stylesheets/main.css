@@ -11,11 +11,12 @@ body {
 }
 .MuYu-Container {
   text-align: center;
+  cursor: pointer;
 }
-.GongDe {
+.Guna {
   text-align: left;
 }
-.GongDe div {
+.Guna div {
   text-align: center;
   height: 3rem;
   width: 15rem;
@@ -25,4 +26,15 @@ body {
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   background-color: rgb(237, 237, 237);
   border: 1px solid rgb(154, 154, 154);
+}
+.Zoom {
+  animation: zoom 0.3s;
+}
+@keyframes zoom {
+  50% {
+    transform: scale(0.8, 0.8);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
 }
