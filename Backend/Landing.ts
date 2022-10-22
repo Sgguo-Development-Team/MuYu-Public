@@ -7,7 +7,7 @@ interface ILanding {
   Render: any;
 }
 
-const Landing = {
+const Landing: ILanding = {
   Render(_: any, res: Response): void {
     res.render("service", {
       page: "landing",

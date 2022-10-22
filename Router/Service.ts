@@ -1,5 +1,5 @@
 import express from "express";
-import { expressjwt, Request as JWTRequest } from "express-jwt";
+import { expressjwt } from "express-jwt";
 
 // 第一方模块
 import Analysis from "../Backend/Analysis";
@@ -15,7 +15,7 @@ router.get("/api", Landing.Render);
 
 // 功德读写
 
-router.route("/api/gunas").get(Analysis.Read).post(Analysis.Write);
+router.route("/api/gunas").get(Analysis.Read).put(Analysis.Write);
 
 // 用户相关
 
@@ -23,10 +23,9 @@ router
   .route("/api/user")
   .get(
     expressjwt({ secret: config.server.secretKey, algorithms: ["HS256"] }),
-    (req: JWTRequest, res: express.Response): void => {
-      res.send(req.auth);
-    }
+    User.Check
   )
-  .post(User.Login);
+  .post(User.CheckInput, User.Login)
+  .delete(User.CheckInput, User.Delete);
 
 export default router;

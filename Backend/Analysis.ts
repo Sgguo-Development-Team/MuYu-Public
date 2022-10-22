@@ -21,7 +21,7 @@ const Analysis: IAnalysis = {
         throw err;
       }
       const content = JSON.parse(data.toString());
-      content["AllServer_Gunas"] + 1;
+      content["AllServer_Gunas"]++;
       console.log(content);
       fs.writeFile(
         path.join(__dirname, "Counter.json"),

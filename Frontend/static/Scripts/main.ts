@@ -7,10 +7,11 @@ $(() => {
    * @param TodayClick 今日敲击
    */
   type elements = {
-    muyu: any;
-    AllServer: any;
-    AllClick: any;
-    TodayClick: any;
+    muyu: JQuery;
+    AllServer: JQuery;
+    AllClick: JQuery;
+    TodayClick: JQuery;
+    url: string;
   };
   type AllServerAPIResponse = {
     AllServer_Gunas: number;
@@ -27,6 +28,101 @@ $(() => {
       redirect: "follow",
     },
   };
+  type StorageType = {
+    expires: number;
+    value: string;
+    startTime: number;
+  };
+  interface IStorage {
+    /**
+     * 设置 Item
+     * @param params
+     */
+    setItem: any;
+    /**
+     * 获取值
+     * @param name 索引
+     * @returns {any} 值
+     */
+    getItem: any;
+    /**
+     * 擦除值
+     * @param name 索引
+     */
+    removeItem: any;
+    /**
+     * 格式化
+     */
+    clear: any;
+  }
+  /**
+   * 增强版本地存储
+   */
+  class Storage implements IStorage {
+    setItem(index: string, params: StorageType) {
+      console.log(params);
+      localStorage.setItem(index, JSON.stringify(params));
+    }
+    getItem(name: string) {
+      let item: any = localStorage.getItem(name) || "";
+      try {
+        item = JSON.parse(item);
+      } catch (error) {
+        item = item;
+      }
+      if (item.startTime) {
+        const date = new Date().getTime();
+        if (date - item.startTime > item.expires) {
+          localStorage.removeItem(name);
+          return false;
+        } else {
+          return item.value;
+        }
+      } else {
+        return item;
+      }
+    }
+    removeItem(name: string) {
+      localStorage.removeItem(name);
+    }
+    clear() {
+      localStorage.clear();
+    }
+  }
+  const DeeperStorage: IStorage = new Storage();
+  type addGunasObj = {
+    AllGunas: number;
+    TodayGunas: number;
+  };
+  /**
+   * 功德操作
+   */
+  class Gunas {
+    getAllGunas() {
+      return DeeperStorage.getItem("AllGunas");
+    }
+    getTodayGunas() {
+      return DeeperStorage.getItem("TodayGunas");
+    }
+    addGunas(num: number): addGunasObj {
+      localStorage.setItem(
+        "AllGunas",
+        JSON.stringify({
+          value: this.getAllGunas().value + num,
+        })
+      );
+      DeeperStorage.setItem("TodayGunas", {
+        value: this.getTodayGunas() + num,
+        expriess: 60 * 60 * 24,
+        startTime: new Date().getTime(),
+      });
+      return {
+        AllGunas: this.getAllGunas().value,
+        TodayGunas: this.getTodayGunas(),
+      };
+    }
+  }
+  const GunasControler = new Gunas();
   class ElementControler {
     element: elements;
     audio: any;
@@ -52,7 +148,6 @@ $(() => {
       return this.state[index];
     }
     /**
-     *
      * @param url 链接
      * @param options Fetch 配置
      * @returns {any} 返回已解构 JSON 的对象
@@ -62,9 +157,28 @@ $(() => {
       return await response.json();
     }
     /**
+     * 初始化存储系统函数
+     */
+    private async initStorage(): Promise<void> {
+      // 如果先前没有存储过，现在创建
+      if (
+        !DeeperStorage.getItem("AllGunas") &&
+        !DeeperStorage.getItem("TodayGunas")
+      ) {
+        localStorage.setItem("AllGunas", JSON.stringify({ value: 0 }));
+        DeeperStorage.setItem("TodayGunas", {
+          value: 0,
+          expriess: 60 * 60 * 24,
+          startTime: new Date().getTime(),
+        });
+      }
+      return;
+    }
+    /**
      * 初始化函数
      */
-    public async init() {
+    public async init(): Promise<void> {
+      this.initStorage();
       // 获取全服功德数据
       this.getData("/api/gunas", fetchTemplates.GET)
         .then((data: AllServerAPIResponse) => {
@@ -79,13 +193,17 @@ $(() => {
         })
         .catch((e) => {
           this.element.AllServer.text("数据获取失败");
-          debugger;
           console.error(e);
         });
       // 绑定事件
       this.element.muyu.on("click", () => {
         this.element.muyu.addClass("Zoom");
         // 更新数据
+        const contentData = GunasControler.addGunas(1);
+        // 设置两项数据
+        this.element.AllClick.text(contentData.AllGunas);
+        this.element.TodayClick.text(contentData.TodayGunas);
+        // 设置服务端
         this.element.AllServer.text(
           `${this.getState("allserver")} + ${this.getState("gunas")}`
         );
@@ -102,10 +220,15 @@ $(() => {
   // 变量名就稍微随性一点
   const muyu_dom = $("#muyu");
   const allserver_dom = $("#AllServer-Guna");
-  const el = new ElementControler({
+  const todayclick_dom = $("#TodayClick-Guna");
+  const allclick_dom = $("#AllClick-Guna");
+  const options: elements = {
     muyu: muyu_dom,
+    TodayClick: todayclick_dom,
     AllServer: allserver_dom,
     url: "./static/Audio/muyu.mp3",
-  });
+    AllClick: allclick_dom,
+  };
+  const el = new ElementControler(options);
   el.init();
 });
