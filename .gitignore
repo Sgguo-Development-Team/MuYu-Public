@@ -44,9 +44,6 @@ jspm_packages/
 # TypeScript v1 declaration files
 typings/
 
-# Builds
-*.js
-
 # TypeScript cache
 *.tsbuildinfo
 
@@ -108,3 +105,10 @@ dist
 
 # IDE
 .idea
+
+# Frontend Lib
+/Frontend/static/Scripts/jquery.min.js.
+
+# Builds
+*.js
+*.map

@@ -4,10 +4,10 @@ import express from "express";
 import logger from "morgan";
 import cors from "cors";
 import helmet from "helmet";
-import config from "./config";
 
-// 路由引入
+// 第一方模块
 import Service from "./Router/Service";
+import config from "./config";
 
 const app = express();
 
@@ -33,35 +33,36 @@ app.use("/", express.static(path.join(__dirname, "Frontend")));
 app.use(Service);
 
 // 捕获错误并传递给错误处理器
-app.use((req: any, res: any, next: any) => {
+app.use((_req, _res, next: express.NextFunction): void => {
   next(createError(404));
 });
 
 // 部署错误处理器
-app.use((err: any, req: any, res: any, next: any) => {
-  res.locals.message = err.message;
-  const errorInfo = req.app.get("env") === "development" ? err : {};
-  res.locals.error = errorInfo;
-  res.format({
-    html(): void {
-      res
-        .status(err.status || 500)
-        .render("error", { page: "error", title: "发生致命错误" });
-    },
-    json(): void {
-      res.status(err.status || 500).send(err);
-    },
-    js(): void {
-      res.status(err.status || 500).jsonp(err);
-    },
-    default(): void {
-      res
-        .status(406)
-        .send("未发现可被接受的 MIME Type, 尝试设置 Resquest 的 HTTP Header");
-    },
-  });
-});
+app.use(
+  (err: any, req: express.Request, res: express.Response, _: any): void => {
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
+    res.format({
+      html(): void {
+        res
+          .status(err.status || 500)
+          .render("error", { page: "error", title: "发生致命错误" });
+      },
+      json(): void {
+        res.status(err.status || 500).send(err);
+      },
+      js(): void {
+        res.status(err.status || 500).jsonp(err);
+      },
+      default(): void {
+        res
+          .status(406)
+          .send("未发现可被接受的 MIME Type, 尝试设置 Resquest 的 HTTP Header");
+      },
+    });
+  }
+);
 
-app.listen(config.server.port, () => {
+app.listen(config.server.port, (): void => {
   console.log(`Application running at http://127.0.0.1:${config.server.port}/`);
 });

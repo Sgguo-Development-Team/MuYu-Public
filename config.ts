@@ -4,11 +4,6 @@
  * @param username 用户名
  * @param port 端口
  */
-enum dbConfigDefault {
-  servername = "localhost",
-  username = "root",
-  port = 3306,
-}
 /**
  * 数据库默认类型定义
  * @param port 端口
@@ -21,20 +16,24 @@ interface IserverConfig {
    * 服务器运行端口号
    */
   port: number | serverConfigDefault;
+  /**
+   * JWT 密钥
+   */
+  secretKey: string;
 }
 interface IdbConfig {
   /**
    * 数据库地址
    */
-  servername: string | dbConfigDefault;
+  host: string;
   /**
    * 数据库用户名
    */
-  username: string | dbConfigDefault;
+  user: string;
   /**
    * 数据库
    */
-  dbname: string;
+  database: string;
   /**
    * 密码
    */
@@ -42,7 +41,7 @@ interface IdbConfig {
   /**
    * 端口
    */
-  port?: number | dbConfigDefault;
+  port?: number;
 }
 interface Iconfig {
   /**
@@ -69,17 +68,19 @@ const appConfig: Iconfig = {
    */
   server: {
     port: 5100,
+    secretKey:
+      "Sgguo-Development-Team is BESTTTTTTTTTTTTT. SHARPPPPPPPPPPP KEY!",
   },
   /**
    * 数据库
    * 接口配置：{@link IdbConfig}
    */
   db: {
-    servername: dbConfigDefault.servername,
-    username: dbConfigDefault.username,
-    dbname: "root",
-    password: "123456",
-    port: dbConfigDefault.port,
+    host: "localhost",
+    user: "root",
+    database: "muyu",
+    password: "RootDBUser",
+    port: 3306,
   },
 };
 

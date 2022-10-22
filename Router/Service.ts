@@ -1,23 +1,32 @@
-import Analysis from "../Backend/Analysis";
 import express from "express";
-const router: any = express.Router();
+import { expressjwt, Request as JWTRequest } from "express-jwt";
 
-// API 服务
-router.get("/api", (req: any, res: any) => {
-  res.render("service", {
-    page: "landing",
-    title: "电子木鱼 - API 服务",
-    text: "电子木鱼 Project & Powered by Sgguo-Development-Team",
-  });
-});
+// 第一方模块
+import Analysis from "../Backend/Analysis";
+import config from "../config";
+import User from "../Backend/User";
+import Landing from "../Backend/Landing";
 
-router.post("/api/info", (req: any, res: any) => {
-  Analysis.Write();
-  res.send("Debugger");
-});
+const router: express.Router = express.Router();
 
-router.get("/api/info", (req: any, res: any) => {
-  res.send(Analysis.Read());
-});
+// API 服务落地页
+
+router.get("/api", Landing.Render);
+
+// 功德读写
+
+router.route("/api/gunas").get(Analysis.Read).post(Analysis.Write);
+
+// 用户相关
+
+router
+  .route("/api/user")
+  .get(
+    expressjwt({ secret: config.server.secretKey, algorithms: ["HS256"] }),
+    (req: JWTRequest, res: express.Response): void => {
+      res.send(req.auth);
+    }
+  )
+  .post(User.Login);
 
 export default router;
