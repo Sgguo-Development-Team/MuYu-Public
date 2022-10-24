@@ -113,7 +113,7 @@ $(() => {
       );
       DeeperStorage.setItem("TodayGunas", {
         value: this.getTodayGunas() + num,
-        expriess: 1000 * 60 * 60 * 24 * 7,
+        expries: 1000 * 60 * 24,
         startTime: new Date().getTime(),
       });
       return {

@@ -85,7 +85,7 @@ const User: IUser = {
             message: result.msg,
             token: jwt_sign({ id, password }, config.server.secretKey, {
               algorithm: "HS256",
-              expiresIn: 1000 * 60 * 60 * 24 * 7,
+              expiresIn: 1000 * 60 * 24 * 7,
             }),
           });
         } else {
