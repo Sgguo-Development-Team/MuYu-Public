@@ -113,7 +113,7 @@ $(() => {
       );
       DeeperStorage.setItem("TodayGunas", {
         value: this.getTodayGunas() + num,
-        expriess: 60 * 60 * 24,
+        expriess: 1000 * 60 * 60 * 24 * 7,
         startTime: new Date().getTime(),
       });
       return {
@@ -122,7 +122,9 @@ $(() => {
       };
     }
   }
+  // 浅浅 new 一个
   const GunasControler = new Gunas();
+  // 定义 ElementControler 类
   class ElementControler {
     element: elements;
     audio: any;
@@ -152,7 +154,7 @@ $(() => {
      * @param options Fetch 配置
      * @returns {any} 返回已解构 JSON 的对象
      */
-    private async getData(url: string, options: any): Promise<any> {
+    private async getData(url: string, options: any) {
       const response = await fetch(url, options);
       return await response.json();
     }
@@ -180,21 +182,23 @@ $(() => {
     public async init(): Promise<void> {
       this.initStorage();
       // 获取全服功德数据
-      this.getData("/api/gunas", fetchTemplates.GET)
-        .then((data: AllServerAPIResponse) => {
-          // 如果没有这个参数则立即抛出
-          if (!data["AllServer_Gunas"]) {
-            throw data;
-          }
-          this.setState("allserver", data["AllServer_Gunas"]);
-          this.element.AllServer.text(
-            `${this.getState("allserver")} + ${this.getState("gunas")}`
-          );
-        })
-        .catch((e) => {
-          this.element.AllServer.text("数据获取失败");
-          console.error(e);
-        });
+      try {
+        const res: AllServerAPIResponse = await this.getData(
+          "/api/gunas",
+          fetchTemplates.GET
+        );
+        if (res.AllServer_Gunas) throw res; //直接抛了
+        this.setState("allserver", res.AllServer_Gunas);
+        this.element.AllServer.text(
+          `${this.getState("allserver")} + ${this.getState("gunas")}`
+        );
+      } catch (error) {
+        this.element.AllServer.text("数据获取失败");
+        console.error(error);
+      }
+      // 预备更新
+      this.element.AllClick.text(GunasControler.getAllGunas().value);
+      this.element.TodayClick.text(GunasControler.getTodayGunas());
       // 绑定事件
       this.element.muyu.on("click", () => {
         this.element.muyu.addClass("Zoom");

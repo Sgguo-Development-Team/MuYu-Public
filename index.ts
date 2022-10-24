@@ -1,9 +1,10 @@
-import path from "path";
 import createError from "http-errors";
 import express from "express";
 import logger from "morgan";
 import cors from "cors";
 import helmet from "helmet";
+import { createWriteStream } from "fs";
+import { join as path_join } from "path";
 
 // 第一方模块
 import Service from "./Router/Service";
@@ -11,12 +12,22 @@ import config from "./config";
 
 const app = express();
 
+const nowTime: Date = new Date();
+// 写入流
+const logsWriteStream = createWriteStream(
+  path_join(
+    __dirname,
+    `Logs/report-${nowTime.getFullYear()}-${nowTime.getMonth()}-${nowTime.getDate()}.log`
+  ),
+  { encoding: "utf-8", flags: "a" }
+);
+
 // 渲染引擎
-app.set("views", path.join(__dirname, "Views"));
+app.set("views", path_join(__dirname, "Views"));
 app.set("view engine", "pug");
 
 // 日志
-app.use(logger("dev"));
+app.use(logger("combined", { stream: logsWriteStream }));
 
 // POST 请求解析器 | Header 设置
 app.use(cors());
@@ -26,8 +37,8 @@ app.use(express.urlencoded({ extended: false }));
 
 // 渲染引擎 - 静态资源
 
-app.use("/templates", express.static(path.join(__dirname, "Views")));
-app.use("/", express.static(path.join(__dirname, "Frontend")));
+app.use("/templates", express.static(path_join(__dirname, "Views")));
+app.use("/", express.static(path_join(__dirname, "Frontend")));
 // 开始部署 Routers
 
 app.use(Service);

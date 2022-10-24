@@ -1,4 +1,6 @@
 import config from "./config";
-import mysql from "mysql";
+import { createPool, Pool } from "mysql";
 
-export default mysql.createPool(config.db);
+const pool: Pool = createPool(config.db);
+
+export default pool;

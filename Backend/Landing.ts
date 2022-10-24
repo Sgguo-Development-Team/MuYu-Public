@@ -4,7 +4,7 @@ interface ILanding {
   /**
    * 渲染落地页
    */
-  Render: any;
+  Render: (_: any, res: Response) => void;
 }
 
 const Landing: ILanding = {

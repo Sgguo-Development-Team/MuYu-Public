@@ -1,7 +1,11 @@
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
+import { sign as jwt_sign } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { Request as JWTRequest } from "express-jwt";
+import {
+  compare as bcrypt_compare,
+  compareSync as bcrypt_compare_sync,
+  hash as bcrypt_hash,
+} from "bcryptjs";
 
 // 第一方模块
 import db from "../db";
@@ -12,35 +16,29 @@ import config from "../config";
  */
 interface IUser {
   /**
-   * 传字符串加密为 MD5
-   * @param str 加密的字符串
-   * @returns {string} 加密结果
-   */
-  getMD5: any;
-  /**
    * 测试用户密码信息
    * @param id 用户 ID
    * @param password 密码
    * @returns {Promise} 结果
    */
-  Verify: (arg0: any, arg1: any) => Promise<any>;
+  Verify: (id?: string | number, password?: string) => Promise<any>;
   /**
    * 登录功能
    * @param req Express.Request
    * @param res Express.Response
    */
-  Login: any;
+  Login: (req: Request, res: Response) => void;
   /**
    * 删除账号
    * @param req Express.Request
    * @param res Express.Response
    */
-  Delete: any;
+  Delete: (req: Request, res: Response) => void;
   /**
    * 检测输入合法性
    * @param req Express.Request
    */
-  CheckInput: any;
+  CheckInput: (req: Request, res: Response, next: NextFunction) => any;
   /**
    * 检测用户名合法性
    */
@@ -50,50 +48,63 @@ interface IUser {
    * @param req JWTRequest
    * @param res Express.Response
    */
-  Check: any;
+  Check: (req: Request, res: Response) => void;
 }
 type Auth = {
   id?: number | string;
   password?: string;
   username?: string;
 };
+
 const User: IUser = {
-  getMD5(str: string): string {
-    return crypto.createHash("md5").update(str).digest("hex");
-  },
-  Verify(id: number, password: string) {
+  Verify(id: any, password: any): Promise<any> {
     const query = `SELECT password FROM league WHERE id = ?`;
     return new Promise<any>((resolve, reject) => {
-      db.query(query, [id], (err, result: any): void => {
+      db.query(query, [id], async (err, result: any) => {
         // 有错误就抛出
-        if (err || result.length !== 1) {
-          return reject(
-            err ?? "UnknownError || PasswordFailed || UsernameIsSame"
+        if (err) reject(err ?? "UnknownError");
+        // 计算值
+        try {
+          const compareResult = await bcrypt_compare(
+            password,
+            result[0]["password"]
           );
-        }
-        // 比对
-        if (result[0]["password"] === User.getMD5(password)) {
-          // 返回
-          resolve(password);
-        } else {
-          reject(false);
+          // 设置状态为已解决
+          resolve({
+            status: compareResult,
+            msg: compareResult ? "LoginSuccess" : "LoginFailed",
+          });
+        } catch {
+          reject({
+            err: `Error - in compare | ID ${id}: NotExist.`,
+            others: "Uncaught Error.",
+          });
         }
       });
     });
   },
-  Login(req: Request, res: Response): void {
+  Login(req: Request, res: Response) {
     const { id, password }: Auth = req.body;
     User.Verify(id, password)
-      .then((password: string) => {
-        res.status(200).send({
-          code: 1,
-          token: jwt.sign({ id, password }, config.server.secretKey, {
-            algorithm: "HS256",
-          }),
-        });
+      .then((result) => {
+        if (result.status) {
+          res.status(200).send({
+            code: 1,
+            message: result.msg,
+            token: jwt_sign({ id, password }, config.server.secretKey, {
+              algorithm: "HS256",
+              expiresIn: 1000 * 60 * 60 * 24 * 7,
+            }),
+          });
+        } else {
+          res.status(403).send({
+            code: 0,
+            message: result.msg,
+          });
+        }
       })
-      .catch((e: any | string): void => {
-        res.status(403).send({ code: 0, message: "LoginFailed", note: e });
+      .catch((err) => {
+        res.status(502).send({ code: 0, message: err });
       });
   },
   Delete(req: Request, res: Response): void {
@@ -110,7 +121,7 @@ const User: IUser = {
         res.status(403).send({ code: 0, message: "UserVerifyFailed", note: e });
       });
   },
-  CheckInput(req: Request, res: Response, next: NextFunction): any {
+  CheckInput(req: Request, res: Response, next: NextFunction) {
     const { id, password }: Auth = req.body;
     if (!id || !password) {
       return res
@@ -119,10 +130,11 @@ const User: IUser = {
     }
     next();
   },
+  // 暂未使用
   RegExp: /^[A-Za-z0-9_]{4,20}$/,
   Check(req: JWTRequest, res: Response): void {
     res.send(req.auth);
   },
 };
 
-export default User;
+export { User };

@@ -4,8 +4,10 @@ import { expressjwt } from "express-jwt";
 // 第一方模块
 import Analysis from "../Backend/Analysis";
 import config from "../config";
-import User from "../Backend/User";
+import { User } from "../Backend/User";
 import Landing from "../Backend/Landing";
+
+console.log(User);
 
 const router: express.Router = express.Router();
 
