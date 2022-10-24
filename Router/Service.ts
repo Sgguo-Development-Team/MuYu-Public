@@ -6,8 +6,7 @@ import Analysis from "../Backend/Analysis";
 import config from "../config";
 import { User } from "../Backend/User";
 import Landing from "../Backend/Landing";
-
-console.log(User);
+import { expressjoi, schemas } from "../Backend/middleware/Joi";
 
 const router: express.Router = express.Router();
 
@@ -27,7 +26,7 @@ router
     expressjwt({ secret: config.server.secretKey, algorithms: ["HS256"] }),
     User.Check
   )
-  .post(User.CheckInput, User.Login)
-  .delete(User.CheckInput, User.Delete);
+  .post(expressjoi.middleware(schemas.users.roles, "body"), User.Login)
+  .delete(expressjoi.middleware(schemas.users.roles, "body"), User.Delete);
 
 export default router;

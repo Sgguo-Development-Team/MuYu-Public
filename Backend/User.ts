@@ -1,13 +1,10 @@
 import { sign as jwt_sign } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { Request as JWTRequest } from "express-jwt";
-import {
-  compare as bcrypt_compare,
-  compareSync as bcrypt_compare_sync,
-  hash as bcrypt_hash,
-} from "bcryptjs";
+import { compare as bcrypt_compare } from "bcryptjs";
 
 // 第一方模块
+
 import db from "../db";
 import config from "../config";
 
@@ -34,11 +31,6 @@ interface IUser {
    * @param res Express.Response
    */
   Delete: (req: Request, res: Response) => void;
-  /**
-   * 检测输入合法性
-   * @param req Express.Request
-   */
-  CheckInput: (req: Request, res: Response, next: NextFunction) => any;
   /**
    * 检测用户名合法性
    */
@@ -120,15 +112,6 @@ const User: IUser = {
       .catch((e: any | string): void => {
         res.status(403).send({ code: 0, message: "UserVerifyFailed", note: e });
       });
-  },
-  CheckInput(req: Request, res: Response, next: NextFunction) {
-    const { id, password }: Auth = req.body;
-    if (!id || !password) {
-      return res
-        .status(400)
-        .send({ code: 0, message: "ID or Password are not valid" });
-    }
-    next();
   },
   // 暂未使用
   RegExp: /^[A-Za-z0-9_]{4,20}$/,
