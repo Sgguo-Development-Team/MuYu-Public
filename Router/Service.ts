@@ -23,9 +23,14 @@ router.route("/api/gunas").get(Analysis.Read).put(Analysis.Write);
 router
   .route("/api/user")
   .get(
-    expressjwt({ secret: config.server.secretKey, algorithms: ["HS256"] }),
+    expressJoi.middleware(schemas.check.roles),
+    expressjwt({
+      secret: config.server.secretKey,
+      algorithms: ["HS256"],
+      getToken: (req: express.Request) => req.body.auth,
+    }),
     User.Check
-  )
+  ).put(expressJoi.middleware(schemas.regUsers.roles),User.Reg)
   .post(expressJoi.middleware(schemas.users.roles), User.Login)
   .delete(expressJoi.middleware(schemas.users.roles), User.Delete);
 

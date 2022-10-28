@@ -18,6 +18,11 @@ interface Ischemas {
   /**
    * 预定义匹配器
    */
+  check: {
+    roles: {
+      auth: Joi.Schema;
+    };
+  };
   users: {
     roles: {
       id: Joi.Schema;
@@ -52,6 +57,11 @@ const expressJoi: Ijoi = {
 };
 
 const schemas: Ischemas = {
+  check: {
+    roles: {
+      auth: Joi.string().required(),
+    },
+  },
   users: {
     roles: {
       id: Joi.number().integer().min(1).max(1000).required(),

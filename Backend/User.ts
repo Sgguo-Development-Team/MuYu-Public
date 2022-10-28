@@ -1,7 +1,7 @@
 import { sign as jwt_sign } from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { Request as JWTRequest } from "express-jwt";
-import { compare as bcrypt_compare } from "bcryptjs";
+import { compare as bcrypt_compare, hash as bcrypt_hash } from "bcryptjs";
 
 // 第一方模块
 
@@ -32,9 +32,11 @@ interface IUser {
    */
   Delete: (req: Request, res: Response) => void;
   /**
-   * 检测用户名合法性
+   * 注册账号
+   * @param req Express.Request
+   * @param res Express.Response
    */
-  RegExp: RegExp | string;
+  Reg: (req: Request, res: Response) => Promise<void>;
   /**
    * 检测 Token 合法性
    * @param req JWTRequest
@@ -113,8 +115,30 @@ const User: IUser = {
         res.status(403).send({ code: 0, message: "UserVerifyFailed", note: e });
       });
   },
-  // 暂未使用
-  RegExp: /^[A-Za-z0-9_]{4,20}$/,
+  async Reg(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body;
+    const query = `INSERT INTO league (email, gunas, password) VALUES (?, '1', ?);`;
+    try {
+      db.query(query, [email, await bcrypt_hash(password, 10)], (err) => {
+        if (err) {
+          res.status(500).send({ code: 0, message: "DatabaseError", err: err });
+          return; // 终止
+        }
+      });
+    } catch (error) {
+      res.status(500).send({ code: 0, message: "BcryptError", err: error });
+      return; // 终止
+    }
+    // 没有遇到任何问题，返回 OK
+    res.status(200).send({
+      code: 1,
+      message: "RegUserSuccess",
+      token: jwt_sign({ password }, config.server.secretKey, {
+        algorithm: "HS256",
+        expiresIn: 1000 * 60 * 24 * 7,
+      }),
+    });
+  },
   Check(req: JWTRequest, res: Response): void {
     res.send(req.auth);
   },
