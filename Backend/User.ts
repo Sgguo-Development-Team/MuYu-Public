@@ -5,8 +5,8 @@ import { compare as bcrypt_compare, hash as bcrypt_hash } from "bcryptjs";
 
 // 第一方模块
 
-import db from "../DB";
-import config from "../Config";
+import { pool as db } from "../DB";
+import { config } from "../Config";
 
 /**
  * 用户相关功能 - 服务层
@@ -50,7 +50,7 @@ type Auth = {
   username?: string;
 };
 
-const User: IUser = {
+export const User: IUser = {
   Verify(id: any, password: any): Promise<any> {
     const query = `SELECT password FROM league WHERE id = ?`;
     return new Promise<any>((resolve, reject) => {
@@ -102,8 +102,8 @@ const User: IUser = {
       });
   },
   Delete(req: Request, res: Response): void {
-    const { id, password }: Auth = req.body;
-    const query = `DELETE FROM league WHERE id = ?`;
+    const { id, password }: Auth = req.body,
+      query = `DELETE FROM league WHERE id = ?`;
     User.Verify(id, password)
       .then(() => {
         db.query(query, [id], (err): void => {
@@ -116,8 +116,8 @@ const User: IUser = {
       });
   },
   async Reg(req: Request, res: Response): Promise<void> {
-    const { email, password } = req.body;
-    const query = `INSERT INTO league (email, gunas, password) VALUES (?, '1', ?);`;
+    const { email, password } = req.body,
+      query = `INSERT INTO league (email, gunas, password) VALUES (?, '1', ?);`;
     try {
       db.query(query, [email, await bcrypt_hash(password, 10)], (err) => {
         if (err) {
@@ -143,5 +143,3 @@ const User: IUser = {
     res.send(req.auth);
   },
 };
-
-export { User };

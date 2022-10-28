@@ -37,7 +37,7 @@ interface Ischemas {
   };
 }
 
-const expressJoi: Ijoi = {
+export const expressJoi: Ijoi = {
   middleware(roles: any, content = "body"): any {
     const schema = Joi.object(roles);
     return (req: any, res: Response, next: NextFunction): void => {
@@ -56,7 +56,7 @@ const expressJoi: Ijoi = {
   },
 };
 
-const schemas: Ischemas = {
+export const schemas: Ischemas = {
   check: {
     roles: {
       auth: Joi.string().required(),
@@ -72,12 +72,8 @@ const schemas: Ischemas = {
     roles: {
       email: Joi.string().email().required(),
       password: Joi.string()
-        .pattern(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}/
-        )
+        .pattern(/^[a-zA-Z0-9_-]{4,16}$/)
         .required(),
     },
   },
 };
-
-export { expressJoi, schemas };

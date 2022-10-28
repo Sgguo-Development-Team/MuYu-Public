@@ -58,10 +58,8 @@ interface Iconfig {
    */
   db: IdbConfig;
 }
-/**
- * Appliaction 运行配置信息，{@link Iconfig}
- */
-const appConfig: Iconfig = {
+
+export const config: Iconfig = {
   /**
    * 服务器配置信息
    * 接口配置：{@link IserverConfig}
@@ -83,5 +81,3 @@ const appConfig: Iconfig = {
     port: 3306,
   },
 };
-
-export default appConfig;

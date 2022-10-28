@@ -13,11 +13,11 @@ interface IAnalysis {
   Read: (_: any, res: Response) => void;
 }
 
-const Analysis: IAnalysis = {
+export const Analysis: IAnalysis = {
   async Write(_: any, res: Response): Promise<void> {
     try {
-      const data: Buffer = await readFile(path_join(__dirname, "Counter.json"));
-      const content = JSON.parse(data.toString("utf-8"));
+      const data: Buffer = await readFile(path_join(__dirname, "Counter.json")),
+        content = JSON.parse(data.toString("utf-8"));
       content["gunas"]++;
       writeFile(path_join(__dirname, "Counter.json"), JSON.stringify(content))
         .then(() => res.send({ code: 1, message: "AnalysisSuccess" }))
@@ -39,5 +39,3 @@ const Analysis: IAnalysis = {
     }
   },
 };
-
-export default Analysis;

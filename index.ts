@@ -6,8 +6,8 @@ import helmet from "helmet";
 import { join as path_join } from "node:path";
 
 // 第一方模块
-import Service from "./Router/Service";
-import config from "./Config";
+import {Service} from "./Router/Service";
+import { config } from "./Config";
 import { logsWriteStream } from "./Streams";
 
 const app = express();
@@ -42,8 +42,8 @@ app.use((_req, _res, next: express.NextFunction): void => {
 // 部署错误处理器
 app.use(
   (err: any, req: express.Request, res: express.Response, _: any): void => {
-    res.locals.message = err.message;
-    res.locals.error = req.app.get("env") === "development" ? err : {};
+    (res.locals.message = err.message),
+      (res.locals.error = req.app.get("env") === "development" ? err : {});
     res.format({
       html(): void {
         res

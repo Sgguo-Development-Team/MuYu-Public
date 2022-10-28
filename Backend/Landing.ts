@@ -7,7 +7,7 @@ interface ILanding {
   Render: (_: any, res: Response) => void;
 }
 
-const Landing: ILanding = {
+export const Landing: ILanding = {
   Render(_: any, res: Response): void {
     res.render("service", {
       page: "landing",
@@ -16,5 +16,3 @@ const Landing: ILanding = {
     });
   },
 };
-
-export default Landing;
