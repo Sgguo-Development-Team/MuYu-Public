@@ -42,7 +42,7 @@ interface IUser {
    * @param req JWTRequest
    * @param res Express.Response
    */
-  Check: (req: Request, res: Response) => void;
+  Check: (req: JWTRequest, res: Response) => void;
 }
 type Auth = {
   id?: number | string;
@@ -51,7 +51,7 @@ type Auth = {
 };
 
 export const User: IUser = {
-  Verify(id: any, password: any): Promise<any> {
+  Verify(id, password: any): Promise<any> {
     const query = `SELECT password FROM league WHERE id = ?`;
     return new Promise<any>((resolve, reject) => {
       db.query(query, [id], async (err, result: any) => {
@@ -77,7 +77,7 @@ export const User: IUser = {
       });
     });
   },
-  Login(req: Request, res: Response) {
+  Login(req, res) {
     const { id, password }: Auth = req.body;
     User.Verify(id, password)
       .then((result) => {
@@ -101,7 +101,7 @@ export const User: IUser = {
         res.status(502).send({ code: 0, message: err });
       });
   },
-  Delete(req: Request, res: Response): void {
+  Delete(req, res): void {
     const { id, password }: Auth = req.body,
       query = `DELETE FROM league WHERE id = ?`;
     User.Verify(id, password)
@@ -115,7 +115,7 @@ export const User: IUser = {
         res.status(403).send({ code: 0, message: "UserVerifyFailed", note: e });
       });
   },
-  async Reg(req: Request, res: Response): Promise<void> {
+  async Reg(req, res): Promise<void> {
     const { email, password } = req.body,
       query = `INSERT INTO league (email, gunas, password) VALUES (?, '1', ?);`;
     try {
@@ -139,7 +139,7 @@ export const User: IUser = {
       }),
     });
   },
-  Check(req: JWTRequest, res: Response): void {
+  Check(req, res): void {
     res.send(req.auth);
   },
 };

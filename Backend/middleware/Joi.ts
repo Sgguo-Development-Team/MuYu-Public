@@ -38,7 +38,7 @@ interface Ischemas {
 }
 
 export const expressJoi: Ijoi = {
-  middleware(roles: any, content = "body"): any {
+  middleware(roles, content = "body"): any {
     const schema = Joi.object(roles);
     return (req: any, res: Response, next: NextFunction): void => {
       schema

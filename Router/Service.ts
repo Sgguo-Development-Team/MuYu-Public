@@ -7,6 +7,7 @@ import { config } from "../Config";
 import { User } from "../Backend/User";
 import { Landing } from "../Backend/Landing";
 import { expressJoi, schemas } from "../Backend/middleware/Joi";
+import { Ranking } from "../Backend/Ranking";
 
 const router: express.Router = express.Router();
 
@@ -34,5 +35,7 @@ router
   .put(expressJoi.middleware(schemas.regUsers.roles), User.Reg)
   .post(expressJoi.middleware(schemas.users.roles), User.Login)
   .delete(expressJoi.middleware(schemas.users.roles), User.Delete);
+
+router.route("/api/ranking").get(Ranking.getTop10);
 
 export { router as Service };

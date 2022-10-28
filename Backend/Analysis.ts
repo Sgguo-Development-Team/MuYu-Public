@@ -14,7 +14,7 @@ interface IAnalysis {
 }
 
 export const Analysis: IAnalysis = {
-  async Write(_: any, res: Response): Promise<void> {
+  async Write(_, res): Promise<void> {
     try {
       const data: Buffer = await readFile(path_join(__dirname, "Counter.json")),
         content = JSON.parse(data.toString("utf-8"));
@@ -28,7 +28,7 @@ export const Analysis: IAnalysis = {
       res.send({ code: 0, message: "ReadFailed", err: error });
     }
   },
-  async Read(_: any, res: Response): Promise<void> {
+  async Read(_, res): Promise<void> {
     try {
       const content = await readFile(path_join(__dirname, "Counter.json"));
       res.send(

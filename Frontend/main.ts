@@ -14,7 +14,7 @@ $(() => {
     url: string;
   };
   type AllServerAPIResponse = {
-    AllServer_Gunas: number;
+    gunas: number;
   };
   const fetchTemplates = {
     GET: {
@@ -30,7 +30,7 @@ $(() => {
   };
   type StorageType = {
     expires: number;
-    value: string;
+    value: number;
     startTime: number;
   };
   interface IStorage {
@@ -38,7 +38,7 @@ $(() => {
      * 设置 Item
      * @param params
      */
-    setItem: any;
+    setItem: (index: string, params: StorageType) => void;
     /**
      * 获取值
      * @param name 索引
@@ -59,7 +59,15 @@ $(() => {
    * 增强版本地存储
    */
   class Storage implements IStorage {
-    setItem(index: string, params: StorageType) {
+    setItem(
+      index: string,
+      params: {
+        value: any;
+        expries?: number;
+        startTime: number;
+        expriess?: number;
+      }
+    ) {
       console.log(params);
       localStorage.setItem(index, JSON.stringify(params));
     }
@@ -73,6 +81,7 @@ $(() => {
       if (item.startTime) {
         const date = new Date().getTime();
         if (date - item.startTime > item.expires) {
+          console.log(item, "已清理");
           localStorage.removeItem(name);
           return false;
         } else {
@@ -113,7 +122,7 @@ $(() => {
       );
       DeeperStorage.setItem("TodayGunas", {
         value: this.getTodayGunas() + num,
-        expries: 1000 * 60 * 24,
+        expires: 60 * 60 * 24 * 1000,
         startTime: new Date().getTime(),
       });
       return {
@@ -131,7 +140,7 @@ $(() => {
     state: any;
     constructor(args: any) {
       this.element = args;
-      this.state = { gunas: 0, allserver: 0 };
+      this.state = new Map();
       this.audio = new Audio(args.url);
     }
     /**
@@ -140,14 +149,17 @@ $(() => {
      * 用于设置 State
      */
     private setState(index: string | number, value: any): void {
-      this.state[index] = value;
+      this.state.set(index, value);
     }
     /**
      * @param index 索引
      * @returns {any} 返回 State 信息
      */
     private getState(index: string | number): any {
-      return this.state[index];
+      return this.state.get(index);
+    }
+    private hasState(index: any): boolean {
+      return this.state.has(index);
     }
     /**
      * @param url 链接
@@ -162,6 +174,7 @@ $(() => {
      * 初始化存储系统函数
      */
     private async initStorage(): Promise<void> {
+      this.hasState("gunas") || this.setState("gunas", 0);
       // 如果先前没有存储过，现在创建
       if (
         !DeeperStorage.getItem("AllGunas") &&
@@ -170,7 +183,7 @@ $(() => {
         localStorage.setItem("AllGunas", JSON.stringify({ value: 0 }));
         DeeperStorage.setItem("TodayGunas", {
           value: 0,
-          expriess: 60 * 60 * 24,
+          expires: 60 * 60 * 24 * 1000,
           startTime: new Date().getTime(),
         });
       }
@@ -187,8 +200,8 @@ $(() => {
           "/api/gunas",
           fetchTemplates.GET
         );
-        if (res.AllServer_Gunas) throw res; //直接抛了
-        this.setState("allserver", res.AllServer_Gunas);
+        if (!res.gunas) throw res; //直接抛了
+        this.setState("allserver", res.gunas);
         this.element.AllServer.text(
           `${this.getState("allserver")} + ${this.getState("gunas")}`
         );
