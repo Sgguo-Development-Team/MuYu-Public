@@ -5,8 +5,8 @@ import { compare as bcrypt_compare } from "bcryptjs";
 
 // 第一方模块
 
-import db from "../db";
-import config from "../config";
+import db from "../DB";
+import config from "../Config";
 
 /**
  * 用户相关功能 - 服务层

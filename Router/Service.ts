@@ -3,10 +3,10 @@ import { expressjwt } from "express-jwt";
 
 // 第一方模块
 import Analysis from "../Backend/Analysis";
-import config from "../config";
+import config from "../Config";
 import { User } from "../Backend/User";
 import Landing from "../Backend/Landing";
-import { expressjoi, schemas } from "../Backend/middleware/Joi";
+import { expressJoi, schemas } from "../Backend/middleware/Joi";
 
 const router: express.Router = express.Router();
 
@@ -26,7 +26,7 @@ router
     expressjwt({ secret: config.server.secretKey, algorithms: ["HS256"] }),
     User.Check
   )
-  .post(expressjoi.middleware(schemas.users.roles, "body"), User.Login)
-  .delete(expressjoi.middleware(schemas.users.roles, "body"), User.Delete);
+  .post(expressJoi.middleware(schemas.users.roles), User.Login)
+  .delete(expressJoi.middleware(schemas.users.roles), User.Delete);
 
 export default router;

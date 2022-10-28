@@ -1,5 +1,5 @@
-import { readFile, writeFile } from "fs";
-import { join as path_join } from "path";
+import { readFile, writeFile } from "node:fs/promises";
+import { join as path_join } from "node:path";
 import { Response } from "express";
 
 interface IAnalysis {
@@ -14,39 +14,29 @@ interface IAnalysis {
 }
 
 const Analysis: IAnalysis = {
-  Write(_: any, res: Response): void {
-    readFile(
-      path_join(__dirname, "Counter.json"),
-      (err: NodeJS.ErrnoException | null, data: Buffer): void => {
-        if (err) {
-          res.send({ code: 0, message: "ReadFailed" });
+  async Write(_: any, res: Response): Promise<void> {
+    try {
+      const data: Buffer = await readFile(path_join(__dirname, "Counter.json"));
+      const content = JSON.parse(data.toString("utf-8"));
+      content["gunas"]++;
+      writeFile(path_join(__dirname, "Counter.json"), JSON.stringify(content))
+        .then(() => res.send({ code: 1, message: "AnalysisSuccess" }))
+        .catch((err) => {
           throw err;
-        }
-        const content = JSON.parse(data.toString("utf-8"));
-        content["AllServer_Gunas"]++;
-        writeFile(
-          path_join(__dirname, "Counter.json"),
-          JSON.stringify(content),
-          () => {
-            res.send({ code: 1, message: "AnalysisSuccess" });
-          }
-        );
-      }
-    );
+        });
+    } catch (error: any) {
+      res.send({ code: 0, message: "ReadFailed", err: error });
+    }
   },
-  Read(_: any, res: Response): void {
-    readFile(
-      path_join(__dirname, "Counter.json"),
-      (err: NodeJS.ErrnoException | null, data: Buffer): void => {
-        if (err) {
-          res.send({ code: 0, message: "ReadFailed" });
-          throw err;
-        }
-        res.send(
-          Object.assign({ code: 1 }, JSON.parse(data.toString("utf-8")))
-        );
-      }
-    );
+  async Read(_: any, res: Response): Promise<void> {
+    try {
+      const content = await readFile(path_join(__dirname, "Counter.json"));
+      res.send(
+        Object.assign({ code: 1 }, JSON.parse(content.toString("utf-8")))
+      );
+    } catch (error) {
+      res.send({ code: 0, message: "ReadFailed" });
+    }
   },
 };
 

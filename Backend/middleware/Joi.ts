@@ -1,11 +1,17 @@
-import { NextFunction, Request, Response } from "express";
+import { Response, NextFunction } from "express";
 import Joi from "joi";
 
 interface Ijoi {
   /**
-   * Joi 在 Express 的中间件封装
+   * Express-Joi 封装
+   * @return {object} 中间件函数
+   * @param roles 规则
+   * @param content 内容路径
    */
-  middleware: (data: any, content: string) => any;
+  middleware: (
+    roles: any,
+    content?: string
+  ) => (req: any, res: Response, next: NextFunction) => void;
 }
 
 interface Ischemas {
@@ -26,12 +32,12 @@ interface Ischemas {
   };
 }
 
-const expressjoi: Ijoi = {
-  middleware(data: any, content = "body"): any {
-    const schema = Joi.object(data);
-    return async (req: any, res: Response, next: NextFunction) => {
+const expressJoi: Ijoi = {
+  middleware(roles: any, content = "body"): any {
+    const schema = Joi.object(roles);
+    return (req: any, res: Response, next: NextFunction): void => {
       schema
-        .validateAsync(req[content], data)
+        .validateAsync(req[content], roles)
         .then(() => next())
         .catch((err: any) => {
           res.send({
@@ -64,4 +70,4 @@ const schemas: Ischemas = {
   },
 };
 
-export { expressjoi, schemas };
+export { expressJoi, schemas };

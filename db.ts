@@ -1,4 +1,4 @@
-import config from "./config";
+import config from "./Config";
 import { createPool, Pool } from "mysql";
 
 const pool: Pool = createPool(config.db);
