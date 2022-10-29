@@ -8,25 +8,9 @@ import log4js from "log4js";
 // 第一方模块
 import { Service } from "./Router/Service";
 import { config } from "./Config";
+import { logger } from "./Logs";
 
 const app = express();
-
-log4js.configure({
-  appenders: {
-    console: { type: "console" },
-    file: {
-      type: "DateFile",
-      filename: "Logs/report",
-      pattern: "yyyy-MM-dd.log",
-      alwaysIncludePattern: true,
-      maxLogSize: 10485760,
-      compress: true,
-    },
-  },
-  categories: {
-    default: { appenders: ["console", "file"], level: "INFO" },
-  },
-});
 
 // 渲染引擎
 app.set("views", path_join(__dirname, "Views"));
@@ -34,7 +18,7 @@ app.set("view engine", "pug");
 
 // 日志
 app.use(
-  log4js.connectLogger(log4js.getLogger(), {
+  log4js.connectLogger(logger, {
     level: "auto",
     format: (req: express.Request, _res, format) =>
       format(`:remote-addr :method :status :url ${JSON.stringify(req.body)}`),

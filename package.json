@@ -4,7 +4,7 @@
   "description": "电子功德高效获取器",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon",
+    "test": "nodemon index.js",
     "build": "tsc",
     "version": "echo 1.0.0",
     "start": "node index.js"

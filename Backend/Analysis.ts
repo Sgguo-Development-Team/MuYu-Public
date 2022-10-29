@@ -2,6 +2,10 @@ import { readFile, writeFile } from "node:fs/promises";
 import { join as path_join } from "node:path";
 import { Response, Request } from "express";
 
+// 第一方
+
+import { consoleLogger } from "../Logs";
+
 interface IAnalysis {
   /**
    * 写功德
@@ -16,19 +20,21 @@ interface IAnalysis {
 export const Analysis: IAnalysis = {
   async Write(req, res): Promise<void> {
     try {
-      const data: Buffer = await readFile(path_join(__dirname, "Counter.json")),
-        content = JSON.parse(data.toString("utf-8")),
+      const data: any = JSON.parse(
+          await readFile(path_join(__dirname, "Counter.json"), "utf-8")
+        ),
         { gunas } = req.body;
-      content["gunas"] + gunas;
-      writeFile(path_join(__dirname, "Counter.json"), JSON.stringify(content))
+      consoleLogger.debug("文件内容", data);
+      writeFile(path_join(__dirname, "Counter.json"), JSON.stringify(data))
         .then(() =>
           res.send({ code: 1, message: "AnalysisSuccess", addGunas: gunas })
         )
         .catch((err) => {
           throw err;
         });
+      consoleLogger.debug("修改后功德数", data);
     } catch (error: any) {
-      res.send({ code: 0, message: "ReadFailed", err: error });
+      res.send({ code: 0, message: "WriteFailed", err: error });
     }
   },
   async Read(_, res): Promise<void> {
@@ -38,7 +44,7 @@ export const Analysis: IAnalysis = {
         Object.assign({ code: 1 }, JSON.parse(content.toString("utf-8")))
       );
     } catch (error) {
-      res.send({ code: 0, message: "ReadFailed" });
+      res.send({ code: 0, message: "ReadFailed", err: error });
     }
   },
 };
