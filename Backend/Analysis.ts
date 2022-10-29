@@ -1,12 +1,12 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join as path_join } from "node:path";
-import { Response } from "express";
+import { Response, Request } from "express";
 
 interface IAnalysis {
   /**
    * 写功德
    */
-  Write: (_: any, res: Response) => void;
+  Write: (req: Request, res: Response) => void;
   /**
    * 读功德
    */
@@ -14,13 +14,16 @@ interface IAnalysis {
 }
 
 export const Analysis: IAnalysis = {
-  async Write(_, res): Promise<void> {
+  async Write(req, res): Promise<void> {
     try {
       const data: Buffer = await readFile(path_join(__dirname, "Counter.json")),
-        content = JSON.parse(data.toString("utf-8"));
-      content["gunas"]++;
+        content = JSON.parse(data.toString("utf-8")),
+        { gunas } = req.body;
+      content["gunas"] + gunas;
       writeFile(path_join(__dirname, "Counter.json"), JSON.stringify(content))
-        .then(() => res.send({ code: 1, message: "AnalysisSuccess" }))
+        .then(() =>
+          res.send({ code: 1, message: "AnalysisSuccess", addGunas: gunas })
+        )
         .catch((err) => {
           throw err;
         });

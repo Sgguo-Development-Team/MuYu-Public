@@ -43,6 +43,10 @@ interface IUser {
    * @param res Express.Response
    */
   Check: (req: JWTRequest, res: Response) => void;
+  /**
+   * 检测邮箱是否存在
+   */
+  isExist: (email: string) => Promise<boolean>;
 }
 type Auth = {
   id?: number | string;
@@ -119,27 +123,63 @@ export const User: IUser = {
     const { email, password } = req.body,
       query = `INSERT INTO league (email, gunas, password) VALUES (?, '1', ?);`;
     try {
-      db.query(query, [email, await bcrypt_hash(password, 10)], (err) => {
-        if (err) {
-          res.status(500).send({ code: 0, message: "DatabaseError", err: err });
-          return; // 终止
-        }
-      });
-    } catch (error) {
-      res.status(500).send({ code: 0, message: "BcryptError", err: error });
-      return; // 终止
+      let isExist: boolean;
+      try {
+        isExist = await User.isExist(email);
+      } catch (error: any) {
+        throw error;
+      }
+      if (!isExist) {
+        db.query(
+          query,
+          [email, await bcrypt_hash(password, 10)],
+          (err, result) => {
+            if (err) {
+              res
+                .status(500)
+                .send({ code: 0, message: "DatabaseError", err: err });
+              throw err; // 终止
+            }
+            res.status(200).send({
+              code: 1,
+              message: "RegUserSuccess",
+              token: jwt_sign(
+                { id: result.insertId },
+                config.server.secretKey,
+                {
+                  algorithm: "HS256",
+                  expiresIn: 1000 * 60 * 24 * 7,
+                }
+              ),
+              result: result,
+            });
+          }
+        );
+      } else throw { isExist: [email, isExist] };
+    } catch (error: any) {
+      res.status(500).send({ code: 0, message: "RegError", err: error });
+      return;
     }
     // 没有遇到任何问题，返回 OK
-    res.status(200).send({
-      code: 1,
-      message: "RegUserSuccess",
-      token: jwt_sign({ password }, config.server.secretKey, {
-        algorithm: "HS256",
-        expiresIn: 1000 * 60 * 24 * 7,
-      }),
-    });
   },
   Check(req, res): void {
     res.send(req.auth);
+  },
+  isExist(email) {
+    return new Promise<boolean>((resolve, reject) => {
+      db.query(
+        `SELECT * FROM league WHERE email = ?`,
+        [email],
+        (err, reuslts) => {
+          if (err) {
+            reject(err ?? true);
+            return;
+          }
+          if (reuslts.length >= 1) {
+            resolve(true);
+          } else resolve(false);
+        }
+      );
+    });
   },
 };

@@ -3,10 +3,10 @@ import Joi from "joi";
 
 interface Ijoi {
   /**
-   * Express-Joi 封装
-   * @return {object} 中间件函数
-   * @param roles 规则
-   * @param content 内容路径
+   * Joi 中间件函数
+   * @param roles Joi 校验规则
+   * @param content 校验内容所在路径 (基于 req)
+   * @returns 中间件函数
    */
   middleware: (
     roles: any,
@@ -35,6 +35,12 @@ interface Ischemas {
       password: Joi.Schema;
     };
   };
+  gunas: {
+    roles: {
+      auth: Joi.Schema;
+      gunas: Joi.Schema;
+    };
+  };
 }
 
 export const expressJoi: Ijoi = {
@@ -45,7 +51,7 @@ export const expressJoi: Ijoi = {
         .validateAsync(req[content], roles)
         .then(() => next())
         .catch((err: any) => {
-          res.send({
+          res.status(400).send({
             code: 400,
             message: "键入内容不合法",
             err,
@@ -74,6 +80,12 @@ export const schemas: Ischemas = {
       password: Joi.string()
         .pattern(/^[a-zA-Z0-9_-]{4,16}$/)
         .required(),
+    },
+  },
+  gunas: {
+    roles: {
+      auth: Joi.string().required(),
+      gunas: Joi.number().integer().min(1).max(1000).required(),
     },
   },
 };

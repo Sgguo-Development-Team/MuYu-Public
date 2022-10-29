@@ -11,6 +11,12 @@ $(() => {
     AllServer: JQuery;
     AllClick: JQuery;
     TodayClick: JQuery;
+    commitGunas: JQuery;
+    uploadGunas: JQuery;
+    commitGunasModal: bootstrap.Modal;
+    loginModal: bootstrap.Modal;
+    errorModal: bootstrap.Toast;
+    errorMsg: JQuery;
     url: string;
   };
   type AllServerAPIResponse = {
@@ -167,8 +173,24 @@ $(() => {
      * @returns {any} 返回已解构 JSON 的对象
      */
     private async getData(url: string, options: any) {
-      const response = await fetch(url, options);
-      return await response.json();
+      try {
+        const response = await fetch(url, options);
+        return await response.json();
+      } catch (error) {
+        return error;
+      }
+    }
+    private async uploadGunas(gunas: number, auth?: string): Promise<void> {
+      return new Promise<void>((resolve, reject): void => {
+        $.ajax({
+          method: "PUT",
+          url: "/api/gunas",
+          headers: { "Content-Type": "application/json" },
+          data: JSON.stringify({ gunas, auth }),
+          success: (res): void => resolve(res),
+          error: (_xhr, _status, err): void => reject(err),
+        });
+      });
     }
     /**
      * 初始化存储系统函数
@@ -228,6 +250,29 @@ $(() => {
         console.log(this.state);
         this.audio.play();
       });
+      this.element.commitGunas.on("click", (e) => {
+        e.preventDefault();
+        if (!DeeperStorage.getItem("token")) {
+          this.element.loginModal.toggle();
+          return;
+        }
+        this.element.commitGunasModal.toggle();
+      });
+      this.element.uploadGunas.on("click", (e) => {
+        e.preventDefault();
+        this.uploadGunas(this.getState("gunas"), DeeperStorage.getItem("token"))
+          .then((res: any) => {
+            console.log(res);
+            this.element.commitGunasModal.toggle();
+            alert(res.message);
+          })
+          .catch((err) => {
+            this.element.commitGunasModal.hide();
+            this.element.errorModal.show();
+            this.element.errorMsg.text(err);
+            console.error(err);
+          });
+      });
       // 设置监听器
       this.audio.addEventListener("ended", () => {
         $(this.element.muyu).removeClass("Zoom");
@@ -235,16 +280,20 @@ $(() => {
     }
   }
   // 变量名就稍微随性一点
-  const muyu_dom = $("#muyu");
-  const allserver_dom = $("#AllServer-Guna");
-  const todayclick_dom = $("#TodayClick-Guna");
-  const allclick_dom = $("#AllClick-Guna");
   const options: elements = {
-    muyu: muyu_dom,
-    TodayClick: todayclick_dom,
-    AllServer: allserver_dom,
-    url: "./static/Audio/muyu.mp3",
-    AllClick: allclick_dom,
+    muyu: $("#muyu"),
+    TodayClick: $("#TodayClick-Guna"),
+    AllServer: $("#AllServer-Guna"),
+    url: "./static/audio/muyu.mp3",
+    AllClick: $("#AllClick-Guna"),
+    uploadGunas: $("#uploadGunas"),
+    commitGunas: $("#commitGunas"),
+    commitGunasModal: new bootstrap.Modal("#commitGunasModal", {
+      keyboard: true,
+    }),
+    loginModal: new bootstrap.Modal("#loginModal"),
+    errorModal: new bootstrap.Toast("#errorModal"),
+    errorMsg: $("#ErrorMsg"),
   };
   const el = new ElementControler(options);
   el.init();

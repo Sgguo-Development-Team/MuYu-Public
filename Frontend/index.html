@@ -12,7 +12,7 @@
       crossorigin="anonymous"
       media="all"
       rel="stylesheet"
-      href="./static/Stylesheets/main.css"
+      href="./static/stylesheets/main.css"
     />
   </head>
   <body>
@@ -21,6 +21,14 @@
         <div class="Guna">
           <div class="AllServer">
             全服功德：<span id="AllServer-Guna">Loading...</span>
+            <button
+              type="button"
+              class="btn text-black mx-1"
+              id="commitGunas"
+              aria-label="Commit Gunas"
+            >
+              上传功德
+            </button>
           </div>
           <div class="AllClick">
             总计敲击：<span id="AllClick-Guna">Loading...</span>
@@ -33,13 +41,160 @@
     </div>
     <div class="MuYu-Container pt-5" id="muyu">
       <img
-        src="./static/Images/muyu.jpg"
+        src="./static/images/muyu.jpg"
         alt="MuYu"
         class="MuYu-Image img-fluid"
       />
     </div>
+    <div class="modal fade" id="commitGunasModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">上传您的功德到天庭</h5>
+            <button type="button" class="btn-close" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>注意上限为 1000 功德，超出小心天庭封号！</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              关了
+            </button>
+            <button id="uploadGunas" type="button" class="btn btn-primary">
+              确认
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade modal-xl" id="loginModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">注册 / 登录账号</h5>
+            <button type="button" class="btn-close" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="InputID" class="form-label">ID</label>
+                <input type="number" class="form-control" id="InputID" />
+              </div>
+              <div class="mb-3">
+                <label for="InputPassword" class="form-label">密码</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="InputPassword"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">确定登录</button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#regUser"
+              class="btn btn-primary"
+            >
+              没有账号？点这里注册
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              关了
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="regUser" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">注册</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="InputEmail" class="form-label">邮箱</label>
+                <input type="email" class="form-control" id="InputEmail" />
+              </div>
+              <div class="mb-3">
+                <label for="InputRegPassword" class="form-label">密码</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="InputRegPassword"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="InputPasswordConfirm" class="form-label"
+                  >重复密码</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="InputPasswordConfirm"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">确定注册</button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn btn-primary"
+              data-bs-target="#loginModal"
+              data-bs-toggle="modal"
+            >
+              返回登录
+            </button>
+            <button class="btn btn-primary" data-bs-dismiss="modal">
+              关了
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="toast align-items-center text-white bg-primary border-0"
+      id="ErrorModal"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <div class="d-flex">
+        <div class="toast-body" id="ErrorMsg">未知错误</div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 m-auto"
+          data-bs-dismiss="toast"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
     <!-- 我总不可能 CJS Module 和 客户端环境混用吧-->
-    <script src="./static/Scripts/jquery.min.js" charset="utf-8"></script>
-    <script src="./main.js" charset="utf-8"></script>
+    <script
+      src="https://cdnjs.gcxstudio.cn/bootstrap/5.2.2/js/bootstrap.bundle.min.js"
+      charset="UTF-8"
+    ></script>
+    <script
+      src="https://cdnjs.gcxstudio.cn/jquery/3.6.1/jquery.min.js"
+      charset="UTF-8"
+    ></script>
+    <script src="./main.js" charset="UTF-8"></script>
   </body>
 </html>

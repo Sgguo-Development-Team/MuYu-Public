@@ -10,6 +10,12 @@
           "meta[name=theme-color]"
         ]
       }
+    ],
+    "axe/parsing": [
+      "default",
+      {
+        "duplicate-id-active": "off"
+      }
     ]
   }
 }

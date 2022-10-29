@@ -1,28 +1,54 @@
 import createError from "http-errors";
 import express from "express";
-import logger from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import { join as path_join } from "node:path";
+import log4js from "log4js";
 
 // 第一方模块
-import {Service} from "./Router/Service";
+import { Service } from "./Router/Service";
 import { config } from "./Config";
-import { logsWriteStream } from "./Streams";
 
 const app = express();
+
+log4js.configure({
+  appenders: {
+    console: { type: "console" },
+    file: {
+      type: "DateFile",
+      filename: "Logs/report",
+      pattern: "yyyy-MM-dd.log",
+      alwaysIncludePattern: true,
+      maxLogSize: 10485760,
+      compress: true,
+    },
+  },
+  categories: {
+    default: { appenders: ["console", "file"], level: "INFO" },
+  },
+});
 
 // 渲染引擎
 app.set("views", path_join(__dirname, "Views"));
 app.set("view engine", "pug");
 
 // 日志
-app.use(logger("combined", { stream: logsWriteStream }));
+app.use(
+  log4js.connectLogger(log4js.getLogger(), {
+    level: "auto",
+    format: (req: express.Request, _res, format) =>
+      format(`:remote-addr :method :status :url ${JSON.stringify(req.body)}`),
+  })
+);
 
 // POST 请求解析器 | Header 设置
 
 app.use(cors());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

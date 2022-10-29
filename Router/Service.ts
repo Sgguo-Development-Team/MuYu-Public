@@ -17,7 +17,18 @@ router.get("/api", Landing.Render);
 
 // 功德读写
 
-router.route("/api/gunas").get(Analysis.Read).put(Analysis.Write);
+router
+  .route("/api/gunas")
+  .get(Analysis.Read)
+  .put(
+    expressJoi.middleware(schemas.gunas.roles),
+    expressjwt({
+      secret: config.server.secretKey,
+      algorithms: ["HS256"],
+      getToken: (req: express.Request) => req.body.auth,
+    }),
+    Analysis.Write
+  );
 
 // 用户相关
 
