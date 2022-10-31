@@ -24,7 +24,7 @@ interface IUser {
    * @param req Express.Request
    * @param res Express.Response
    */
-  Login: (req: Request, res: Response) => void;
+  Login: (req: Request, res: Response) => Promise<void>;
   /**
    * 删除账号
    * @param req Express.Request
@@ -46,9 +46,9 @@ interface IUser {
   /**
    * 检测邮箱是否存在
    */
-  isExist: (email: string) => Promise<boolean>;
+  isExist: (email: string) => Promise<any | boolean>;
 }
-type Auth = {
+type IAuth = {
   id?: number | string;
   password?: string;
   username?: string;
@@ -60,7 +60,10 @@ export const User: IUser = {
     return new Promise<any>((resolve, reject) => {
       db.query(query, [id], async (err, result: any) => {
         // 有错误就抛出
-        if (err) reject(err ?? "UnknownError");
+        if (err) {
+          reject(err ?? "UnknownError");
+          return;
+        }
         // 计算值
         try {
           const compareResult = await bcrypt_compare(
@@ -72,74 +75,59 @@ export const User: IUser = {
             status: compareResult,
             msg: compareResult ? "LoginSuccess" : "LoginFailed",
           });
-        } catch {
+        } catch (err: any) {
           reject({
-            err: `Error - in compare | ID ${id}: NotExist.`,
-            others: "Uncaught Error.",
+            info: `ID ${id}: NotExist.`,
+            err,
           });
         }
       });
     });
   },
-  Login(req, res) {
-    const { id, password }: Auth = req.body;
-    User.Verify(id, password)
-      .then((result) => {
-        if (result.status) {
-          res.status(200).send({
+  async Login(req, res): Promise<void> {
+    try {
+      const { id, password }: IAuth = req.body,
+        result = await User.Verify(id, password);
+      result.status
+        ? res.status(200).send({
             code: 1,
             message: result.msg,
             token: jwt_sign({ id, password }, config.server.secretKey, {
               algorithm: "HS256",
               expiresIn: 1000 * 60 * 24 * 7,
             }),
-          });
-        } else {
-          res.status(403).send({
-            code: 0,
-            message: result.msg,
-          });
-        }
-      })
-      .catch((err) => {
-        res.status(502).send({ code: 0, message: err });
-      });
+          })
+        : res.status(403).send({ code: 0, message: result.msg });
+    } catch (err: any) {
+      res.status(502).send({ code: 0, message: "LoginFailed", err });
+    }
   },
-  Delete(req, res): void {
-    const { id, password }: Auth = req.body,
-      query = `DELETE FROM league WHERE id = ?`;
-    User.Verify(id, password)
-      .then(() => {
-        db.query(query, [id], (err): void => {
-          if (err) throw err;
-          res.status(200).send({ code: 1, message: "DeleteSuccessful" });
-        });
-      })
-      .catch((e: any | string): void => {
-        res.status(403).send({ code: 0, message: "UserVerifyFailed", note: e });
+  async Delete(req, res): Promise<void> {
+    try {
+      const { id, password }: IAuth = req.body,
+        query = `DELETE FROM league WHERE id = ?`;
+      await User.Verify(id, password);
+      db.query(query, [id], (err): void => {
+        if (err) throw err;
+        res.status(200).send({ code: 1, message: "DeleteSuccessful" });
       });
+    } catch (error: any) {
+      res
+        .status(403)
+        .send({ code: 0, message: "UserVerifyFailed", err: error });
+    }
   },
   async Reg(req, res): Promise<void> {
     const { email, password } = req.body,
       query = `INSERT INTO league (email, gunas, password) VALUES (?, '1', ?);`;
     try {
-      let isExist: boolean;
-      try {
-        isExist = await User.isExist(email);
-      } catch (error: any) {
-        throw error;
-      }
+      const isExist = await User.isExist(email);
       if (!isExist) {
         db.query(
           query,
           [email, await bcrypt_hash(password, 10)],
           (err, result) => {
-            if (err) {
-              res
-                .status(500)
-                .send({ code: 0, message: "DatabaseError", err: err });
-              throw err; // 终止
-            }
+            if (err) throw { info: "DatabaseError", err }; // 终止
             res.status(200).send({
               code: 1,
               message: "RegUserSuccess",
@@ -152,32 +140,30 @@ export const User: IUser = {
                 }
               ),
               result: result,
-            });
+            }); // 没有问题直接返回
           }
         );
-      } else throw { isExist: [email, isExist] };
+      } else throw { info: "emailExist", isExist: [email, isExist] };
     } catch (error: any) {
       res.status(500).send({ code: 0, message: "RegError", err: error });
-      return;
     }
-    // 没有遇到任何问题，返回 OK
   },
   Check(req, res): void {
-    res.send(req.auth);
+    res
+      .status(200)
+      .send({ code: 1, message: "GetTokenInfoSuccess", auth: req.auth });
   },
   isExist(email) {
-    return new Promise<boolean>((resolve, reject) => {
+    return new Promise<any | boolean>((resolve, reject) => {
       db.query(
         `SELECT * FROM league WHERE email = ?`,
         [email],
-        (err, reuslts) => {
+        (err, reuslts: Array<any>) => {
           if (err) {
-            reject(err ?? true);
+            reject({ info: "DatabaseError in Check e-mail.", err });
             return;
           }
-          if (reuslts.length >= 1) {
-            resolve(true);
-          } else resolve(false);
+          resolve(reuslts.length >= 1);
         }
       );
     });

@@ -40,6 +40,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/templates", express.static(path_join(__dirname, "Views")));
 app.use("/", express.static(path_join(__dirname, "Frontend")));
+
 // 开始部署 Routers
 
 app.use(Service);

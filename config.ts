@@ -11,6 +11,7 @@
 enum serverConfigDefault {
   port = 5100,
 }
+
 interface IserverConfig {
   /**
    * 服务器运行端口号
