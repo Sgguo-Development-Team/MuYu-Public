@@ -34,6 +34,11 @@ body {
 .Zoom {
   animation: zoom 0.3s;
 }
+#ErrorModal {
+  z-index: 5555;
+  top: 5px;
+  right: 5px;
+}
 @keyframes zoom {
   50% {
     transform: scale(0.8, 0.8);

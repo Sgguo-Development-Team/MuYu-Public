@@ -2,13 +2,14 @@ import createError from "http-errors";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import { createServer } from "node:http";
 import { join as path_join } from "node:path";
 import log4js from "log4js";
 
 // 第一方模块
 import { Service } from "./Router/Service";
 import { config } from "./Config";
-import { logger } from "./Logs";
+import { consoleLogger, logger } from "./Logs";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(cors());
 app.use(
   helmet({
     contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
   })
 );
 app.use(express.json());
@@ -76,6 +78,8 @@ app.use(
   }
 );
 
-app.listen(config.server.port, (): void => {
-  console.log(`Application running at http://127.0.0.1:${config.server.port}/`);
+createServer(app).listen(config.server.port, () => {
+  consoleLogger.debug(
+    `Server is running at http://127.0.0.1:${config.server.port}/`
+  );
 });

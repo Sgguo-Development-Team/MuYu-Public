@@ -92,7 +92,9 @@
                   id="InputPassword"
                 />
               </div>
-              <button type="submit" class="btn btn-primary">确定登录</button>
+              <button type="submit" class="btn btn-primary" id="loginBtn">
+                确定登录
+              </button>
             </form>
           </div>
           <div class="modal-footer">
@@ -170,10 +172,9 @@
       </div>
     </div>
     <div
-      class="toast align-items-center text-white bg-primary border-0"
+      class="toast text-white bg-danger border-0 position-absolute"
       id="ErrorModal"
       role="alert"
-      aria-live="assertive"
       aria-atomic="true"
     >
       <div class="d-flex">

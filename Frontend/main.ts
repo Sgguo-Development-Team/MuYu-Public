@@ -7,6 +7,7 @@ $(() => {
    * @param TodayClick 今日敲击
    */
   type elements = {
+    loginBtn: JQuery;
     muyu: JQuery;
     AllServer: JQuery;
     AllClick: JQuery;
@@ -20,7 +21,9 @@ $(() => {
     url: string;
   };
   type AllServerAPIResponse = {
-    gunas: number;
+    result: {
+      gunas: number;
+    };
   };
   const fetchTemplates = {
     GET: {
@@ -71,7 +74,6 @@ $(() => {
         value: any;
         expries?: number;
         startTime: number;
-        expriess?: number;
       }
     ) {
       console.log(params);
@@ -198,16 +200,18 @@ $(() => {
     private async initStorage(): Promise<void> {
       this.hasState("gunas") || this.setState("gunas", 0);
       // 如果先前没有存储过，现在创建
-      if (
-        !DeeperStorage.getItem("AllGunas") &&
-        !DeeperStorage.getItem("TodayGunas")
-      ) {
+      if (!localStorage.getItem("AllGunas")) {
         localStorage.setItem("AllGunas", JSON.stringify({ value: 0 }));
-        DeeperStorage.setItem("TodayGunas", {
-          value: 0,
-          expires: 60 * 60 * 24 * 1000,
-          startTime: new Date().getTime(),
-        });
+      }
+      if (!localStorage.getItem("TodayGunas")) {
+        localStorage.setItem(
+          "TodayGunas",
+          JSON.stringify({
+            value: 1,
+            expires: 60 * 60 * 24 * 1000,
+            startTime: new Date().getTime(),
+          })
+        );
       }
       return;
     }
@@ -222,8 +226,8 @@ $(() => {
           "/api/gunas",
           fetchTemplates.GET
         );
-        if (!res.gunas) throw res; //直接抛了
-        this.setState("allserver", res.gunas);
+        if (!res.result.gunas) throw res; //直接抛了
+        this.setState("allserver", res.result.gunas);
         this.element.AllServer.text(
           `${this.getState("allserver")} + ${this.getState("gunas")}`
         );
@@ -273,6 +277,22 @@ $(() => {
             console.error(err);
           });
       });
+      this.element.loginBtn.on("click", (e) => {
+        e.preventDefault();
+        $.post("/api/user", {
+          id: $("#InputID").val(),
+          password: $("#InputPassword").val(),
+        })
+          .done((res) => {
+            alert("登录成功！");
+            console.log(res);
+          })
+          .catch((err) => {
+            this.element.errorModal.show();
+            this.element.errorMsg.text("登录出现错误");
+            throw err;
+          });
+      });
       // 设置监听器
       this.audio.addEventListener("ended", () => {
         $(this.element.muyu).removeClass("Zoom");
@@ -291,8 +311,9 @@ $(() => {
     commitGunasModal: new bootstrap.Modal("#commitGunasModal", {
       keyboard: true,
     }),
+    loginBtn: $("#loginBtn"),
     loginModal: new bootstrap.Modal("#loginModal"),
-    errorModal: new bootstrap.Toast("#errorModal"),
+    errorModal: new bootstrap.Toast("#ErrorModal"),
     errorMsg: $("#ErrorMsg"),
   };
   const el = new ElementControler(options);
