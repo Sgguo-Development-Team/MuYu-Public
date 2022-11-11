@@ -78,7 +78,7 @@ export const config: Iconfig = {
     host: "localhost",
     user: "root",
     database: "muyu",
-    password: "RootDBUser",
+    password: "root",
     port: 3306,
   },
 };
