@@ -13,7 +13,13 @@ import { config } from "../Config";
  */
 interface IUser {
   /**
-   * 测试用户密码信息
+   * 验证信息, 搭配 trycatch 失败后可以便捷处理 err
+   * @example 
+   * ```ts
+   * app.get("/api/checkUser", (req,res) => {
+   *  res.send(await User.Verify(id,password));
+   * })
+   * ```
    * @param id 用户 ID
    * @param password 密码
    * @returns {Promise} 结果
@@ -48,11 +54,11 @@ interface IUser {
    */
   isExist: (email: string) => Promise<any | boolean>;
 }
-type IAuth = {
+interface IAuth {
   id?: number | string;
   password?: string;
   username?: string;
-};
+}
 
 export const User: IUser = {
   Verify(id, password: any): Promise<any> {
@@ -106,7 +112,7 @@ export const User: IUser = {
     try {
       const { id, password }: IAuth = req.body,
         query = `DELETE FROM league WHERE id = ?`;
-      await User.Verify(id, password);
+      await User.Verify(id, password); // 验证用户
       db.query(query, [id], (err): void => {
         if (err) throw err;
         res.status(200).send({ code: 1, message: "DeleteSuccessful" });

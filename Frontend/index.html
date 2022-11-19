@@ -46,12 +46,67 @@
         class="MuYu-Image img-fluid"
       />
     </div>
+    <div class="gunas" id="GunasPlus">功德+1</div>
+    <div class="Ranking-Container pt-5">
+      <div class="GunasRanking text-black">
+        <button
+          type="button"
+          class="btn"
+          id="GunasRankingBtn"
+          data-bs-toggle="modal"
+          data-bs-target="#GunasRankingModal"
+        >
+          功德录
+        </button>
+      </div>
+    </div>
+    <div class="modal fade" tabindex="-1" id="GunasRankingModal">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">功德录</h5>
+            <button
+              type="button"
+              data-bs-dismiss="modal"
+              class="btn-close"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            仅显示功德数排名前十的用户
+            <table class="table table-hover mt-2">
+              <tbody id="GunasRankingList">
+                <tr class="table-active">
+                  <th scope="row">功德数</th>
+                  <td>电子邮箱</td>
+                  <td>ID</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              关了
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="modal fade" id="commitGunasModal" tabindex="-1">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">上传您的功德到天庭</h5>
-            <button type="button" class="btn-close" aria-label="Close"></button>
+            <button
+              type="button"
+              data-bs-dismiss="modal"
+              class="btn-close"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <p>注意上限为 1000 功德，超出小心天庭封号！</p>
@@ -76,7 +131,12 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">注册 / 登录账号</h5>
-            <button type="button" class="btn-close" aria-label="Close"></button>
+            <button
+              type="button"
+              data-bs-dismiss="modal"
+              class="btn-close"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <form>
@@ -153,7 +213,9 @@
                   id="InputPasswordConfirm"
                 />
               </div>
-              <button type="submit" class="btn btn-primary">确定注册</button>
+              <button type="button" class="btn btn-primary" id="regBtn">
+                确定注册
+              </button>
             </form>
           </div>
           <div class="modal-footer">
@@ -189,11 +251,11 @@
     </div>
     <!-- 我总不可能 CJS Module 和 客户端环境混用吧-->
     <script
-      src="https://cdnjs.gcxstudio.cn/bootstrap/5.2.2/js/bootstrap.bundle.min.js"
+      src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
       charset="UTF-8"
     ></script>
     <script
-      src="https://cdnjs.gcxstudio.cn/jquery/3.6.1/jquery.min.js"
+      src="/node_modules/jquery/dist/jquery.min.js"
       charset="UTF-8"
     ></script>
     <script src="./main.js" charset="UTF-8"></script>

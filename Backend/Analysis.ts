@@ -8,7 +8,7 @@ import { Request as JWTRequest } from "express-jwt";
 import { consoleLogger } from "../Logs";
 import { pool } from "../DB";
 
-type IAuth = {
+type IAuthAnalysis = {
   id: number;
 };
 
@@ -18,7 +18,7 @@ export interface IAnalysis {
   /**
    * 写功德
    */
-  Write: (req: JWTRequest<IAuth>, res: Response) => void;
+  Write: (req: JWTRequest<IAuthAnalysis>, res: Response) => void;
   /**
    * 读功德
    */
@@ -67,7 +67,7 @@ export const Analysis: IAnalysis = {
   async Write(req, res): Promise<void> {
     try {
       const { gunas } = req.body,
-        id: any = req.auth?.id,
+        { id }: any = req.auth,
         result = await Analysis.WriteDb(id, gunas);
       consoleLogger.debug("修改后功德数", await Analysis.WriteLocal(gunas));
       consoleLogger.debug("数据库修改成功", result);

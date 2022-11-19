@@ -29,7 +29,7 @@ export const Ranking: IRanking = {
       });
       res.status(200).send(result);
     } catch (error) {
-      res.status(500).send({ code: 0, message: "GetInfoFailed", error });
+      res.status(500).send({ code: 0, message: "GetInfoFailed", err: error });
     }
   },
 };

@@ -18,6 +18,10 @@ $(() => {
     loginModal: bootstrap.Modal;
     errorModal: bootstrap.Toast;
     errorMsg: JQuery;
+    regBtn: JQuery;
+    InputRegPassword: JQuery;
+    regUser: bootstrap.Modal;
+    InputPasswordConfirm: JQuery;
     url: string;
   };
   type AllServerAPIResponse = {
@@ -215,12 +219,45 @@ $(() => {
       }
       return;
     }
-    /**
-     * 初始化函数
-     */
-    public async init(): Promise<void> {
-      this.initStorage();
-      // 获取全服功德数据
+    private showErr(
+      msg:
+        | string
+        | number
+        | boolean
+        | ((
+            this: HTMLElement,
+            index: number,
+            text: string
+          ) => string | number | boolean)
+    ) {
+      this.element.errorModal.show();
+      this.element.errorMsg.text(msg);
+    }
+    private initRanking() {
+      $("#GunasRankingList").html(
+        `<tr class="table-active" id="GunasRankingListContainer">
+        <th scope="row">功德数</th>
+        <td>电子邮箱</td>
+        <td>ID</td>
+      </tr>`
+      );
+      $.get("/api/ranking")
+        .done((res: { data: Array<any> }) => {
+          console.log(res);
+          // 用 Array 默认迭代器会导致顺序问题
+          for (let i = 0; i < res.data.length; i++) {
+            const item = res.data.at(i);
+            const table = $("<tr></tr>").append(
+              `<td>${item.gunas}</td><td>${item.email}</td><td>${item.id}</td>`
+            );
+            $("#GunasRankingList").append(table);
+          }
+        })
+        .fail((xhr) => {
+          this.showErr(xhr?.responseJSON.message);
+        });
+    }
+    private async updateAllServer() {
       try {
         const res: AllServerAPIResponse = await this.getData(
           "/api/gunas",
@@ -235,12 +272,22 @@ $(() => {
         this.element.AllServer.text("数据获取失败");
         console.error(error);
       }
+    }
+    /**
+     * 初始化函数
+     */
+    public async init(): Promise<void> {
+      this.initStorage();
+      // 获取全服功德数据
+      this.updateAllServer();
+      $("#GunasRankingBtn").on("click", this.initRanking);
       // 预备更新
       this.element.AllClick.text(GunasControler.getAllGunas().value);
       this.element.TodayClick.text(GunasControler.getTodayGunas());
       // 绑定事件
       this.element.muyu.on("click", () => {
         this.element.muyu.addClass("Zoom");
+        $("#GunasPlus").addClass("GunasPlus");
         // 更新数据
         const contentData = GunasControler.addGunas(1);
         // 设置两项数据
@@ -264,17 +311,26 @@ $(() => {
       });
       this.element.uploadGunas.on("click", (e) => {
         e.preventDefault();
+        if (this.getState("gunas") < 1) {
+          this.showErr("请确保当前现有功德满 1，否则佛祖把你拖下去");
+          this.element.commitGunasModal.toggle();
+          return;
+        }
         this.uploadGunas(this.getState("gunas"), DeeperStorage.getItem("token"))
           .then((res: any) => {
             console.log(res);
             this.element.commitGunasModal.toggle();
-            alert(res.message);
+            this.setState("allserver", this.getState("allserver") + res.add);
+            this.setState("gunas", 0);
+            this.updateAllServer();
+            alert("上传成功！");
           })
           .catch((err) => {
-            this.element.commitGunasModal.hide();
-            this.element.errorModal.show();
-            this.element.errorMsg.text(err);
             console.error(err);
+            this.element.commitGunasModal.hide();
+            this.showErr(
+              "服务端拒绝接收，查看控制台并寻找管理员解决 100% 问题"
+            );
           });
       });
       this.element.loginBtn.on("click", (e) => {
@@ -284,7 +340,20 @@ $(() => {
           password: $("#InputPassword").val(),
         })
           .done((res) => {
+            res?.token
+              ? localStorage.setItem(
+                  "token",
+                  JSON.stringify({
+                    value: res.token,
+                    expires: 60 * 60 * 24 * 1000,
+                    startTime: new Date().getTime(),
+                  })
+                )
+              : this.showErr(
+                  "客户端拒绝接收，查看控制台并寻找管理员解决 100% 问题"
+                );
             alert("登录成功！");
+            this.element.loginModal.hide();
             console.log(res);
           })
           .catch((err) => {
@@ -293,9 +362,51 @@ $(() => {
             throw err;
           });
       });
+      this.element.regBtn.on("click", (e) => {
+        e.preventDefault();
+        const password = this.element.InputPasswordConfirm.val(),
+          isConfirm =
+            this.element.InputRegPassword.val() === password &&
+            password?.toString().search(/^[a-zA-Z0-9_-]{4,16}$/) !== -1;
+        if (isConfirm) {
+          $.ajax({
+            method: "PUT",
+            url: "/api/user",
+            headers: { "Content-Type": "application/json" },
+            data: JSON.stringify({ email: $("#InputEmail").val(), password }),
+          })
+            .done((res) => {
+              const errShow = () => {
+                this.element.errorModal.show();
+                this.element.errorMsg.text("服务端错误");
+              };
+              res?.token
+                ? localStorage.setItem(
+                    "token",
+                    JSON.stringify({
+                      value: res.token,
+                      expires: 60 * 60 * 24 * 1000,
+                      startTime: new Date().getTime(),
+                    })
+                  )
+                : errShow;
+              this.element.regUser.toggle();
+            })
+            .catch((xhr) => {
+              this.element.errorModal.show();
+              this.element.errorMsg.text(xhr?.responseJSON.message);
+              console.error(xhr);
+              return;
+            });
+        } else {
+          this.element.errorModal.show();
+          this.element.errorMsg.text("请确保密码一致 | 密码强度过低");
+        }
+      });
       // 设置监听器
       this.audio.addEventListener("ended", () => {
         $(this.element.muyu).removeClass("Zoom");
+        $("#GunasPlus").removeClass("GunasPlus");
       });
     }
   }
@@ -313,8 +424,12 @@ $(() => {
     }),
     loginBtn: $("#loginBtn"),
     loginModal: new bootstrap.Modal("#loginModal"),
+    regBtn: $("#regBtn"),
+    InputPasswordConfirm: $("#InputPasswordConfirm"),
+    InputRegPassword: $("#InputRegPassword"),
     errorModal: new bootstrap.Toast("#ErrorModal"),
     errorMsg: $("#ErrorMsg"),
+    regUser: new bootstrap.Modal("#regUser"),
   };
   const el = new ElementControler(options);
   el.init();

@@ -42,6 +42,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/templates", express.static(path_join(__dirname, "Views")));
 app.use("/", express.static(path_join(__dirname, "Frontend")));
+app.use("/node_modules", express.static(path_join(__dirname, "node_modules")));
 
 // 开始部署 Routers
 
@@ -80,6 +81,6 @@ app.use(
 
 createServer(app).listen(config.server.port, () => {
   consoleLogger.debug(
-    `Server is running at http://127.0.0.1:${config.server.port}/`
+    `Server is running at http://[::1]:${config.server.port}/`
   );
 });
