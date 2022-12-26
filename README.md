@@ -1,13 +1,12 @@
 # MuYu
- 电子木鱼，赛博飞升
+Electronic woodfish, Cyber flying up
 
 ## Stacks
 The technology stack for this project:
 
-- Backend
-Node.js + Express + MySQL + Log4JS
-- Frontend
-Bootstrap + jQuery
+`Backend: Node.js + Express + MySQL + Log4JS`
+
+`Frontend: Bootstrap + jQuery`
 
 As well, this project is only for practice, the code quality is low.
 
