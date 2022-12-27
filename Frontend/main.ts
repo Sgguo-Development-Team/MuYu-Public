@@ -95,7 +95,7 @@ $(() => {
         if (date - item.startTime > item.expires) {
           console.log(item, "已清理");
           localStorage.removeItem(name);
-          return false;
+          return 0;
         } else {
           return item.value;
         }

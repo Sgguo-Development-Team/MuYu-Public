@@ -14,7 +14,7 @@ import { config } from "../Config";
 interface IUser {
   /**
    * 验证信息, 搭配 trycatch 失败后可以便捷处理 err
-   * @example 
+   * @example
    * ```ts
    * app.get("/api/checkUser", (req,res) => {
    *  res.send(await User.Verify(id,password));

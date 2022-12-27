@@ -84,7 +84,7 @@ export const expressJoi: Ijoi = {
     gunas: {
       roles: {
         auth: Joi.string().required(),
-        gunas: Joi.number().integer().min(1).required(),
+        gunas: Joi.number().integer().min(1).max(1500).required(),
       },
     },
   };
