@@ -12,4 +12,4 @@ As well, this project is only for practice, the code quality is low.
 
 ## Other
 
-The project is SDT's, and it may suddenly become a private state. If you want to use it, you can study the code yourself. I don’t like to write a comment. Remember Star if I like it.
+The project is SDT's, and it may suddenly become a private state. If you want to use it, you can study the code yourself. I don’t like to write a comment. Remember Star if you like it.
